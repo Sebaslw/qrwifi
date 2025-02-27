@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Código QR para Wi-Fi</title>
+    <style>
+        /* Estilos generales */
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #50c1f5, #ffffff);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* Contenedor principal */
+        .container {
+            text-align: center;
+            background-color: white;
+            padding: 90px;
+            border-radius: 15px;
+            align-items: center;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        /* Estilos para los inputs */
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        /* Contenedor del código QR */
+        #qrcode {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Estilos del botón */
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 8px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            margin: 5px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        /* Estilos para el mensaje de error */
+        .error-message {
+            color: #ff4757;
+            font-size: 14px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        /* Responsive para pantallas pequeñas */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 24px;
+            }
+
+            input {
+                font-size: 14px;
+                padding: 10px;
+            }
+
+            button {
+                font-size: 14px;
+                padding: 10px 20px;
+            }
+
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Generador de Código QR para Wi-Fi</h1>
+        <input type="text" id="ssid" placeholder="Nombre de la red (SSID)" value="" required>
+        <input type="text" id="password" placeholder="Contraseña de la red" value="" required>
+        <div id="qrcode"></div>
+        <div class="error-message" id="error-message">Por favor, ingresa el nombre de la red y la contraseña.</div>
+        <button onclick="generateQR()">Generar Código QR</button>
+        <button onclick="downloadQR()" id="download-btn" style="display: none;">Descargar QR</button>
+    </div>
+
+    <!-- Incluir la librería qrcode.js -->
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+    <script>
+        // Función para generar el código QR
+        function generateQR() {
+            // Obtener los valores de los inputs
+            const ssid = document.getElementById("ssid").value;
+            const password = document.getElementById("password").value;
+
+            // Validar que los campos no estén vacíos
+            if (!ssid || !password) {
+                document.getElementById("error-message").style.display = "block";
+                document.getElementById("download-btn").style.display = "none";
+                document.getElementById("qrcode").innerHTML = ""; // Limpiar el QR si no hay datos
+                return;
+            } else {
+                document.getElementById("error-message").style.display = "none";
+            }
+
+            // Formatear los datos para el código QR
+            const wifiData = `WIFI:S:${ssid};T:WPA;P:${password};;`;
+
+            // Limpiar el contenedor del código QR si ya existe uno
+            document.getElementById("qrcode").innerHTML = "";
+
+            // Generar el código QR
+            new QRCode(document.getElementById("qrcode"), {
+                text: wifiData,
+                width: 256,
+                height: 256,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.L
+            });
+
+            // Mostrar el botón de descarga
+            document.getElementById("download-btn").style.display = "inline-block";
+        }
+
+        // Función para descargar el código QR
+        function downloadQR() {
+            const qrImage = document.querySelector("#qrcode img");
+
+            if (qrImage) {
+                const link = document.createElement("a");
+                link.href = qrImage.src;
+                link.download = "wifi_qr.png";
+                link.click();
+            } else {
+                alert("Primero genera un código QR.");
+            }
+        }
+    </script>
+</body>
+</html>
